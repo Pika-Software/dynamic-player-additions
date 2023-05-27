@@ -1,4 +1,4 @@
-require( "packages/dynamic-player", "https://github.com/Pika-Software/dynamic-player" )
+install( "packages/dynamic-player", "https://github.com/Pika-Software/dynamic-player" )
 
 -- Libraries
 local hook = hook
