@@ -38,5 +38,7 @@ if SERVER then
 end
 
 hook.Add( "Move", "Velocity", function( ply, moveData )
+    if ply:GetMoveType() ~= MOVETYPE_WALK then return end
+    if not ply:Alive() or ply:InVehicle() then return end
     moveData:SetMaxSpeed( moveData:GetMaxSpeed() * ply:GetNW2Float( packageName, 1 ) )
 end )
