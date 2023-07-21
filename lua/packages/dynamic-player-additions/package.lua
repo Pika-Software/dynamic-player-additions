@@ -1,3 +1,3 @@
 name = "dynamic-player-additions"
-version = 010000
+version = "1.1.0"
 autorun = true
