@@ -1,4 +1,4 @@
-install( "packages/math-extensions", "https://github.com/Pika-Software/math-extensions" )
+install( "packages/math-extensions.lua", "https://raw.githubusercontent.com/Pika-Software/math-extensions/main/lua/packages/math-extensions.lua" )
 install( "packages/dynamic-player", "https://github.com/Pika-Software/dynamic-player" )
 
 local FCVAR_ARCHIVE = FCVAR_ARCHIVE
