@@ -1,4 +1,5 @@
 install( "packages/math-extensions.lua", "https://raw.githubusercontent.com/Pika-Software/math-extensions/main/lua/packages/math-extensions.lua" )
+install( "packages/config.lua", "https://raw.githubusercontent.com/Pika-Software/config/main/lua/packages/config.lua")
 install( "packages/dynamic-player", "https://github.com/Pika-Software/dynamic-player" )
 
 local FCVAR_ARCHIVE = FCVAR_ARCHIVE
@@ -6,24 +7,32 @@ local CreateConVar = CreateConVar
 
 do
 
-    local baseMinHealth = CreateConVar( "mp_min_health", "10", FCVAR_ARCHIVE, "Player\'s max health, used to calculate health.", 10, 10000 )
-    local baseMaxHealth = CreateConVar( "mp_max_health", "250", FCVAR_ARCHIVE, "Player\'s max health, used to calculate health.", 100, 10000 )
-    local baseHealth = CreateConVar( "mp_base_health", "100", FCVAR_ARCHIVE, "Player\'s basic health, used to calculate health.", 10, 10000 )
+    local baseMinHealth = CreateConVar( "dpa_min_health", "10", FCVAR_ARCHIVE, "Player\'s max health, used to calculate health.", 10, 10000 )
+    local baseMaxHealth = CreateConVar( "dpa_max_health", "250", FCVAR_ARCHIVE, "Player\'s max health, used to calculate health.", 100, 10000 )
+    local baseHealth = CreateConVar( "dpa_base_health", "100", FCVAR_ARCHIVE, "Player\'s basic health, used to calculate health.", 10, 10000 )
+    local configFile = config.Create( "dynamic-player-additions" )
     local math = math
-    local cache = {}
 
     hook.Add( "PlayerUpdatedModelBounds", "Health", function( ply, model, data )
-        local fraction = cache[ model ]
-        if not fraction then
+        local modelData = configFile:Get( model )
+        if not modelData then
             local standing = data.Standing
-            fraction = math.Round( standing.Mins:Distance( standing.Maxs ) ) / 77
-            cache[ model ] = fraction
+            local basicHealth = baseHealth:GetInt()
+            local fraction = math.Round( standing.Mins:Distance( standing.Maxs ) ) / 77
+
+            modelData = {
+                ["MaxHealth"] = math.Round( math.Clamp( fraction, baseMinHealth:GetInt() / basicHealth, baseMaxHealth:GetInt() / basicHealth ), 1 ) * basicHealth,
+                ["JumpPower"] = math.max( 20, fraction * 200 ),
+                ["Fraction"] = fraction
+            }
+
+            configFile:Set( model, modelData )
         end
 
-        local basicHealth = baseHealth:GetInt()
-        local maxHealth = math.Round( math.Clamp( fraction, baseMinHealth:GetInt() / basicHealth, baseMaxHealth:GetInt() / basicHealth ), 1 ) * basicHealth
+        local maxHealth = modelData.MaxHealth
         ply:SetHealth( math.min( ply:Health(), maxHealth ) )
-        ply:SetModelFraction( fraction )
+        ply:SetModelFraction( modelData.Fraction )
+        ply:SetJumpPower( modelData.JumpPower )
         ply:SetMaxHealth( maxHealth )
 
         hook.Run( "PlayerUpdatedModelFraction", ply, model, fraction )
