@@ -38,7 +38,7 @@ do
         ply:SetHealth( math.min( ply:Health(), maxHealth ) )
         ply:SetMaxHealth( maxHealth )
 
-        hook.Run( "PlayerUpdatedModelSpeed", ply, model, speed )
+        hook.Run( "PlayerChangedModelAdditions", ply, model, speed )
     end )
 
 end
